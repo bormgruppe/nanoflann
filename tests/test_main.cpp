@@ -178,7 +178,7 @@ void L2_vs_bruteforce_test(
     nanoflann::KNNResultSet<NUM> resultSet(num_results);
 
     resultSet.init(&ret_indexes[0], &out_dists_sqr[0]);
-    mat_index.index->findNeighbors(resultSet, my_kd_tree_t::PointType{query_pt});
+    mat_index.index->findNeighbors(resultSet, my_kd_tree_t::PointType(query_pt));
 
     const auto nFound = resultSet.size();
 
@@ -250,7 +250,7 @@ void rknn_L2_vs_bruteforce_test(
     nanoflann::RKNNResultSet<NUM> resultSet(num_results, maxRadiusSqr);
 
     resultSet.init(&ret_indexes[0], &out_dists_sqr[0]);
-    mat_index.index->findNeighbors(resultSet, my_kd_tree_t::PointType{query_pt});
+    mat_index.index->findNeighbors(resultSet, my_kd_tree_t::PointType(query_pt));
 
     const auto nFound = resultSet.size();
 
@@ -539,7 +539,7 @@ void L2_concurrent_build_vs_bruteforce_test(
     nanoflann::KNNResultSet<NUM> resultSet(num_results);
 
     resultSet.init(&ret_indexes[0], &out_dists_sqr[0]);
-    mat_index.index->findNeighbors(resultSet, my_kd_tree_t::PointType{query_pt});
+    mat_index.index->findNeighbors(resultSet, my_kd_tree_t::PointType(query_pt));
 
     // Brute force:
     double min_dist_L2 = std::numeric_limits<double>::max();
@@ -985,4 +985,22 @@ TEST(kdtree, BoxSearch)
 
     box_search_test<float, true>();
     box_search_test<double, true>();
+}
+
+// The test is about verification of building kd-tree with identical points for which the function KDTreeBaseClass::planeSplit crashed before fixing it.
+TEST(kdtree, OverlapWithLooseTree)
+{
+    using num_t = double;
+    PointCloud<num_t> cloud;
+    cloud.pts = {{0.0, 0.0, 0.0}, {0.0, 0.0, 0.0}, {0.0, 0.0, 0.0}, {0.0, 0.0, 0.0}};
+
+    // construct a kd-tree index:
+    typedef KDTreeSingleIndexAdaptor<
+        L2_Simple_Adaptor<num_t, PointCloud<num_t>>, PointCloud<num_t>,
+        3 /* dim */, uint32_t, true>
+        my_kd_tree_simple_t;
+
+    my_kd_tree_simple_t index(3 /*dim*/, cloud, KDTreeSingleIndexAdaptorParams(3 /* max leaf */, KDTreeSingleIndexAdaptorFlags::SkipInitialBuildIndex));
+    index.buildIndex();
+    EXPECT_TRUE(index.root_node_ != nullptr);
 }
