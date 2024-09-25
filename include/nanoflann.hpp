@@ -1182,20 +1182,8 @@ class KDTreeBaseClass
             node->lr.right    = right;
 
             // compute bounding-box of leaf points
-            for (Dimension i = 0; i < dims; ++i)
-            {
-                bbox[i].low  = dataset_get(obj, obj.vAcc_[left], i);
-                bbox[i].high = dataset_get(obj, obj.vAcc_[left], i);
-            }
-            for (Offset k = left + 1; k < right; ++k)
-            {
-                for (Dimension i = 0; i < dims; ++i)
-                {
-                    const auto val = dataset_get(obj, obj.vAcc_[k], i);
-                    if (bbox[i].low > val) bbox[i].low = val;
-                    if (bbox[i].high < val) bbox[i].high = val;
-                }
-            }
+            if (right - left > 0)
+                computeBoundingBox(obj, &vAcc_[left], right - left, bbox);
         }
         else
         {
@@ -1273,20 +1261,8 @@ class KDTreeBaseClass
             node->lr.right    = right;
 
             // compute bounding-box of leaf points
-            for (Dimension i = 0; i < dims; ++i)
-            {
-                bbox[i].low  = dataset_get(obj, obj.vAcc_[left], i);
-                bbox[i].high = dataset_get(obj, obj.vAcc_[left], i);
-            }
-            for (Offset k = left + 1; k < right; ++k)
-            {
-                for (Dimension i = 0; i < dims; ++i)
-                {
-                    const auto val = dataset_get(obj, obj.vAcc_[k], i);
-                    if (bbox[i].low > val) bbox[i].low = val;
-                    if (bbox[i].high < val) bbox[i].high = val;
-                }
-            }
+            if (right - left > 0)
+                computeBoundingBox(obj, &vAcc_[left], right - left, bbox);
         }
         else
         {
