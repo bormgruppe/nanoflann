@@ -1146,18 +1146,7 @@ class KDTreeBaseClass
 
         for (Dimension i = 0; i < dims; ++i)
         {
-            bbox[i].low = bbox[i].high = dataset_get(obj, ix[0], i);
-        }
-        for (Size k = 1; k < count; ++k)
-        {
-            for (Dimension i = 0; i < dims; ++i)
-            {
-                const auto val = dataset_get(obj, ix[k], i);
-                if (val < bbox[i].low)
-                    bbox[i].low = val;
-                if (val > bbox[i].high)
-                    bbox[i].high = val;
-            }
+            dataset_get_limits(obj, ix, count, i, bbox[i].low, bbox[i].high);
         }
     }
 
